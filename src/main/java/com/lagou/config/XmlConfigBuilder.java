@@ -1,5 +1,6 @@
 package com.lagou.config;
 
+import com.lagou.io.Resources;
 import com.lagou.pojo.Configuration;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.dom4j.Document;
@@ -49,9 +50,16 @@ public class XmlConfigBuilder {
 
         configuration.setDataSource(comboPooledDataSource);
 
-        //解析mapper.xml解析
+        //解析mapper.xml解析:拿到路径---加载成字节输入流---dom4j进行解析
+        List<Element> mapperList = rootElement.selectNodes("//mapper");
+        for (Element element : mapperList) {
+            //每一个element对应一个mapper标签
+            String mapperPath = element.attributeValue("resource");
+            InputStream resourceAsStream = Resources.getResourceAsStream(mapperPath);
+            XMLMapperBuilder xmlMapperBuilder = new XMLMapperBuilder(configuration);
+        }
 
-        return null;
+        return configuration;
     }
 
 }
