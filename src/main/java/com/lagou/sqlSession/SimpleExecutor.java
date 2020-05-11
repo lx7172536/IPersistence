@@ -33,7 +33,7 @@ public class SimpleExecutor implements Executor {
             //转换sql语句 转换过程中需要队#{}里面的值进行解析
         String sql = mappedStatement.getSql();
         BoundSql boundSql = getBoundSql(sql);
-
+        System.out.println(boundSql.getSqlText());
         // 3.获取预处理对象:preparedStatement
         PreparedStatement preparedStatement = connection.prepareStatement(boundSql.getSqlText());
 
@@ -52,7 +52,7 @@ public class SimpleExecutor implements Executor {
             //通过设置属性的暴力访问拿到对应的值
             declaredField.setAccessible(true);
             Object o = declaredField.get(params[0]);
-
+            System.out.println(o.toString());
             //由于sql索引是从1开始 所以需要设置i+1
             preparedStatement.setObject(i+1,o);
         }
@@ -62,14 +62,14 @@ public class SimpleExecutor implements Executor {
             //获取到返回实体的全路径并获取对应Class
         String resultType = mappedStatement.getResultType();
         Class<?> resultTypeClass = getClassType(resultType);
-        Object o = resultTypeClass.newInstance();
         ArrayList<Object> objects = new ArrayList<>();
 
         // 6.封装返回结果集
         while (resultSet.next()){
+            Object o = resultTypeClass.newInstance();
             //获取到元数据 元数据包括每行的列数据
             ResultSetMetaData metaData = resultSet.getMetaData();
-            for (int i = 1; i <metaData.getColumnCount() ; i++) {
+            for (int i = 1; i <=metaData.getColumnCount() ; i++) {
                 //字段名
                 String columnName = metaData.getColumnName(i);
                 //字段值

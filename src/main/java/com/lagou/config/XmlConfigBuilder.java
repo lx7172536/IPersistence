@@ -44,7 +44,7 @@ public class XmlConfigBuilder {
         //创建连接池
         ComboPooledDataSource comboPooledDataSource = new ComboPooledDataSource();
         comboPooledDataSource.setDriverClass(properties.getProperty("driverClass"));
-        comboPooledDataSource.setJdbcUrl(properties.getProperty("jdbUrl"));
+        comboPooledDataSource.setJdbcUrl(properties.getProperty("jdbUrl")+"?useUnicode=true&characterEncoding=UTF-8");
         comboPooledDataSource.setUser(properties.getProperty("username"));
         comboPooledDataSource.setPassword(properties.getProperty("password"));
 
@@ -57,6 +57,7 @@ public class XmlConfigBuilder {
             String mapperPath = element.attributeValue("resource");
             InputStream resourceAsStream = Resources.getResourceAsStream(mapperPath);
             XMLMapperBuilder xmlMapperBuilder = new XMLMapperBuilder(configuration);
+            xmlMapperBuilder.parse(resourceAsStream);
         }
 
         return configuration;
