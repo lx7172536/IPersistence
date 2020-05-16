@@ -4,10 +4,7 @@ import com.lagou.pojo.Configuration;
 import com.lagou.pojo.MappedStatement;
 
 import java.beans.IntrospectionException;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import java.lang.reflect.*;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -44,16 +41,32 @@ public class DefaultSqlSession implements SqlSession {
     }
 
     @Override
-    public <T> T getMapper(Class<?> mapperClass) {
-        //使用JDK动态代理来未Dao接口生成代理对象
+    public <T> T getMapper(final Class<?> mapperClass) {
+        //使用JDK动态代理来为Dao接口生成代理对象
         Object proxyInstance = Proxy.newProxyInstance(DefaultSqlSession.class.getClassLoader(), new Class[]{mapperClass}, new InvocationHandler() {
+
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                //proxy：当前代理对象的应用  method：当前被调用方法的引用 args：传递的参数
                 // 底层还是去执行JDBC代码 //根据不同情况，来调用selectList或者selectOne
                 // 准备参数 1：statmentid:sql语句的唯一标识：namespace.id=接口全限定名.方法名
+                String methodName = method.getName();
+                String className = method.getDeclaringClass().getName();
 
+                String statmentId = className+"."+methodName;
 
-                return null;
+                //准备参数  2：args 即传过来的实体对象
+                //获取被调用方法的返回值类型
+                Type genericReturnType = method.getGenericReturnType();
+
+                // 判断是否进行了 泛型类型参数化
+                // 如果有泛型 则表示返回了list 否则返回实体
+                if(genericReturnType instanceof ParameterizedType){
+                    List<Object> objects = selectList(statmentId, args);
+                    return  objects;
+                }
+
+                return selectOne(statmentId,args);
             }
         });
 
