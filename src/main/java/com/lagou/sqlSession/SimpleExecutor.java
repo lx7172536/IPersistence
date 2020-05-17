@@ -69,6 +69,7 @@ public class SimpleExecutor implements Executor {
             Object o = resultTypeClass.newInstance();
             //获取到元数据 元数据包括每行的列数据
             ResultSetMetaData metaData = resultSet.getMetaData();
+            //循环每行的数据进行封装
             for (int i = 1; i <=metaData.getColumnCount() ; i++) {
                 //字段名
                 String columnName = metaData.getColumnName(i);
